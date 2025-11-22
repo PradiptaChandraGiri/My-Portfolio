@@ -104,6 +104,7 @@ config_router = APIRouter()
 def get_profile():
     return load_json(PROFILE_JSON)
 
+
 @profile_router.post("/update")
 def update_profile(data: dict):
     current = load_json(PROFILE_JSON)
@@ -113,6 +114,7 @@ def update_profile(data: dict):
     save_json(PROFILE_JSON, current)
     return {"ok": True, "profile": current}
 
+
 @profile_router.post("/upload-photo")
 async def upload_photo(file: UploadFile = File(...)):
     filename, _ = save_upload_file(file, PROFILE_DIR)
@@ -120,6 +122,7 @@ async def upload_photo(file: UploadFile = File(...)):
     profile["photo_path"] = f"/uploads/profile/{filename}"
     save_json(PROFILE_JSON, profile)
     return {"ok": True, "path": profile["photo_path"]}
+
 
 @profile_router.post("/upload-resume")
 async def upload_resume(file: UploadFile = File(...)):
@@ -136,6 +139,7 @@ async def upload_resume(file: UploadFile = File(...)):
 @projects_router.get("/")
 def get_projects():
     return load_json(PROJECTS_JSON)
+
 
 @projects_router.post("/add")
 def add_project(data: dict):
@@ -154,6 +158,7 @@ def add_project(data: dict):
     save_json(PROJECTS_JSON, projects)
     return {"ok": True, "project": new_project}
 
+
 @projects_router.post("/delete")
 def delete_project(project_id: str):
     projects = load_json(PROJECTS_JSON)
@@ -162,6 +167,7 @@ def delete_project(project_id: str):
         raise HTTPException(status_code=404, detail="Project not found")
     save_json(PROJECTS_JSON, new_projects)
     return {"ok": True}
+
 
 @projects_router.post("/upload-image/{project_id}")
 async def upload_project_image(project_id: str, file: UploadFile = File(...)):
@@ -179,6 +185,7 @@ async def upload_project_image(project_id: str, file: UploadFile = File(...)):
 @config_router.get("/")
 def get_config():
     return load_json(CONFIG_JSON)
+
 
 @config_router.post("/update")
 def update_config(data: dict):
@@ -216,12 +223,16 @@ app.include_router(config_router, prefix="/api/config")
 # =====================================================================
 
 @app.get("/", include_in_schema=False)
-def serve_frontend():
-    """Serve main website page (master_portfolio.html)."""
-    index_path = os.path.join(STATIC_DIR, "master_portfolio.html")
+def home():
+    """
+    Serve main website page (static/index.html).
+    This is what Render will show at the root URL.
+    """
+    index_path = os.path.join(STATIC_DIR, "index.html")
     if not os.path.exists(index_path):
-        return {"error": "master_portfolio.html missing — put file inside /static/"}
+        return {"error": "index.html missing — put file inside /static/index.html"}
     return FileResponse(index_path, media_type="text/html")
+
 
 @app.get("/api/_health")
 def health():
